@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <title>TopCodes Distance Demo</title>
+</head>
+
+<body>
+  <canvas id="video-canvas" width="800" height="600" style="background: #ddd;"></canvas>
+  <br/>
+  <button id="camera-button" onclick="TopCodes.startStopVideoScan('video-canvas')">Start / Stop</button>
+
+  <h3>Vertical Distance is: <span id="vert"></span></h3>
+  <h3>Horizontal Distance is: <span id="horiz"></span></h3>
+
+  <script src="topcodes.js"></script>
+</body>
+</html>
+
+<script>
+  var verticalDistance = 0;
+  var horizontalDistance = 0;
+
+  // register a callback function with the TopCode library
+  TopCodes.setVideoFrameCallback("video-canvas", function(jsonString) {
+
+    // convert the JSON string to an object
+    var json = JSON.parse(jsonString);
+
+    // get the list of topcodes from the JSON object
+    var topcodes = json.topcodes;
+
+    // obtain a drawing context from the <canvas>
+    var ctx = document.querySelector("#video-canvas").getContext('2d');
+
+    ctx.fillStyle = "rgba(0, 255, 0, 0.3)";   // very translucent green
+    for (i=0; i<topcodes.length; i++) {
+      for (j=0; j<topcodes.length; j++) {
+        if (topcodes[i].code == 61 && topcodes[j].code == 91) {
+            ctx.beginPath();
+            ctx.arc(topcodes[i].x, topcodes[i].y, topcodes[i].radius, 0, Math.PI*2, true);
+            ctx.arc(topcodes[j].x, topcodes[j].y, topcodes[j].radius, 0, Math.PI*2, true);
+            ctx.fill();
+            console.log("Horizontal Distance is " + (topcodes[j].x - topcodes[i].x));
+            console.log("Vertical Distance is " + (topcodes[j].y - topcodes[i].y));
+            horizontalDistance = topcodes[j].x - topcodes[i].x;
+            verticalDistance = topcodes[j].y - topcodes[i].y;
+        }
+      }
+
+      document.getElementById("vert").innerHTML = verticalDistance;
+      document.getElementById("horiz").innerHTML = horizontalDistance;
+    }
+  });
+</script>
